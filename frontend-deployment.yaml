@@ -20,6 +20,21 @@ spec:
           env:
             - name: BACKEND_URL
               value: "http://backend:8080" # vem do metadata.name do backend-deployment.yaml
+          livenessProbe: # verifica se o Pod está vivo. Se falhar, reinicia o Pod
+            httpGet:
+              path: /       # get para a página principal
+              port: 80
+            periodSeconds: 10 # verifica a cada 10 segundos
+            failureThreshold: 3 # quantos erros até considerar que o pod falhou
+            initialDelaySeconds: 20 # quantos segundos espera até começar a testar o pod
+          readinessProbe: # verifica se está pronto para receber tráfego. Se falhar, para de receber
+            httpGet:
+              path: /  # get para a página principal. Ideal ter endpoint específico para checar
+              port: 80
+            periodSeconds: 10 # a cada 10 segundos, verifica se o pod pode receber requisições
+            failureThreshold: 3 #  quantos erros até considerar que o pod is not ready
+            initialDelaySeconds: 20 # quantos segundos espera até começar a testar o pod
+          
 ---
 apiVersion: v1
 kind: Service
