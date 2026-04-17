@@ -34,7 +34,10 @@ spec:
             periodSeconds: 10 # a cada 10 segundos, verifica se o pod pode receber requisições
             failureThreshold: 3 #  quantos erros até considerar que o pod is not ready
             initialDelaySeconds: 20 # quantos segundos espera até começar a testar o pod
-          
+          resources:
+            limits:
+              cpu: 10m
+
 ---
 apiVersion: v1
 kind: Service
