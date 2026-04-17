@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment                        # nome do Deployment no cluster
+spec:
+  replicas: 1                                   # apenas um Pod será criado
+  selector:
+    matchLabels:                                # como o Deployment encontra os Pods que pertencem a ele
+      app: mongo                                # precisa bater com as labels do template abaixo
+  template:
+    metadata:
+      labels:
+        app: mongo # A label app: mongo é essencial porque o selector usa essa mesma label para ligar Deployment e Pod
+    spec:
+      containers:
+        - name: mongo                           # referenciado no matchLabels
+          image: mongo:6.0
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret                # diz para pegar do db-secret
+                  key: MONGO_USER                # a chave que deve pegar do db-secret
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: MONGO_PASSWORD
+          volumeMounts:
+            - name: mongo-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-storage
+          hostPath: # só em dev. Os dados ficam presos ao nó específico onde o Pod rodar
+            path: /home/manoel/workspace-unipds/infra-cloud/unipdi-database
+            type: DirectoryOrCreate
+
+---
+# service expõe o Mongo internamente na porta 27017
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-mongo
+spec:
+  selector:
+    app: mongo # Esse Service vai apontar para os Pods com a label app: mongo, ou seja, o Pod criado pelo Deployment.
+  ports:
+    - protocol: TCP
+      port: 27017         # porta do Service
+      targetPort: 27017   # porta real do container
+  type: ClusterIP # significa que o Mongo será acessível só dentro do cluster, não diretamente de fora

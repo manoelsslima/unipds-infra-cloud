@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 2            # quantos Pods iguais criar
+  selector:              # jeito de reconhecer esse Pod
+    matchLabels:
+      app: frontend
+  template:              # receita do Pod
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: jacquetech/unipdi-frontend
+          ports:
+            - containerPort: 80
+          env:
+            - name: BACKEND_URL
+              value: "http://backend:8080" # vem do metadata.name do backend-deployment.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30000     # range de 30000–32767
+  type: NodePort
+
+# para acessar no navegador, precisa mapear a porta 5173 (porta liberada no backend para o CORS)
+# kubectl port-forward service/svc-frontend 5173:80
