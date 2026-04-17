@@ -57,3 +57,41 @@ cpu: 10%/50%
 ```
 
 > Observação: esses valores são apenas para teste e verificar o scale up em funcionamento
+
+## Parando os deployments
+
+```bash
+kubectl scale deployment <nome-do-deployment> --replicas=0
+```
+
+## Removendo os deployments
+
+```bash
+kubectl delete deployment <nome-do-deployment>
+```
+
+## Removendo os Services
+
+```bash
+kubectl delete service <nome-do-servico>
+```
+Os services não são parados, apenas removidos
+
+## Removendo os ConfigMap
+O namespace padrão é `defautl`
+
+```bash
+kubectl delete configmap <nome-do-configmap> -n <namespace>
+```
+
+## Removendo as Secrets
+O namespace padrão é `defautl`
+
+```bash
+kubectl delete secret <nome-do-secret> -n <namespace>
+```
+
+## Remover o cluster
+```bash
+kind delete cluster --name <nome-do-cluster>
+```
